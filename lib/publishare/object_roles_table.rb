@@ -241,16 +241,16 @@ class AnonUser
       x = Role.find :all, :conditions => roles_for_conditions(authorizable_obj, role_name), :joins => :roles_users
       x.empty? ? nil : x
     end
+    
+    def roles
+      x = Role.find :all, :conditions => "roles_users.user_id IS NULL", :joins => :roles_users
+      x.empty? ? nil : x
+    end
   
     private 
     
     def roles_by_name role_name
       x = Role.find :all, :conditions => ["roles_users.user_id IS NULL and name = ?", role_name], :joins => :roles_users
-      x.empty? ? nil : x
-    end
-    
-    def roles
-      x = Role.find :all, :conditions => "roles_users.user_id IS NULL", :joins => :roles_users
       x.empty? ? nil : x
     end
     
