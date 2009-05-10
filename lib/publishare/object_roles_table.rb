@@ -248,6 +248,10 @@ class AnonUser
       Role.find(RolesUser.find(:all, :conditions =>  "roles_users.user_id IS NULL", :joins => :role, :select => :id).map(&:id))
     end
     
+    def id # Convenience method so we don't raise Object#id deprecation
+      nil
+    end
+    
     private 
     
     def roles_by_name role_name
