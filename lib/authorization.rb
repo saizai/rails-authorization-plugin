@@ -90,19 +90,26 @@ module Authorization
 
       # Handle redirection within permit if authorization is denied.
       def handle_redirection
-        return if not self.respond_to?( :redirect_to )
+        respond_to do |format|
+          format.html do
+            return if not self.respond_to?( :redirect_to )
 
-        # Store url in session for return if this is available from
-        # authentication
-        send( STORE_LOCATION_METHOD ) if respond_to? STORE_LOCATION_METHOD
-        if @current_user && @current_user != :false
-          flash[:notice] = @options[:permission_denied_message] || "Permission denied. You cannot access the requested page."
-          redirect_to @options[:permission_denied_redirection] || PERMISSION_DENIED_REDIRECTION
-        else
-          flash[:notice] = @options[:login_required_message] || "Login is required to access the requested page."
-          redirect_to @options[:login_required_redirection] || LOGIN_REQUIRED_REDIRECTION
+            # Store url in session for return if this is available from
+            # authentication
+            send( STORE_LOCATION_METHOD ) if respond_to? STORE_LOCATION_METHOD
+            if @current_user && @current_user != :false
+              flash[:notice] = @options[:permission_denied_message] || "Permission denied. You cannot access the requested page."
+              redirect_to @options[:permission_denied_redirection] || PERMISSION_DENIED_REDIRECTION
+            else
+              flash[:notice] = @options[:login_required_message] || "Login is required to access the requested page."
+              redirect_to @options[:login_required_redirection] || LOGIN_REQUIRED_REDIRECTION
+            end
+            false  # Want to short-circuit the filters
+          end
+          format.js   { render(:update) { |page| page.alert "Permission denied." } }
+          format.xml  { head :forbidden }
+          format.json { head :forbidden }
         end
-        false  # Want to short-circuit the filters
       end
 
       # Try to find current user by checking options hash and instance method in that order.
