@@ -217,7 +217,8 @@ module Authorization
         end
 
         # Returns all users with particular role(s)
-        # The method_missing version does something similar, but sugarily.
+        # Accepts single or array, strings or Roles, and plurals too (in any combination)
+        # The Identity module's method_missing version does something similar, but sugarily.
         def has_roles roles
           roles = [roles].flatten # Accept either a single role or multiple
           roles.map! {|role|  # Accept either Role objects or role names
@@ -226,10 +227,17 @@ module Authorization
             elsif role.is_a? String
               role.singularize # just in case we're passed the collective version
             else
-              raise ArgumentError, "Expecting Role object(s) or a role name String(s)"
+              raise ArgumentError, "Expecting Role object(s) or role name String(s)"
             end }
-          users = self.accepted_roles.find_all_by_name(roles, :include => :users).collect { |role| role.users }
+          users = self.accepted_roles.find_all_by_name(roles, :include => :users).collect { |role| role.users.map{|user| user || AnonUser} }
           users.flatten.compact.uniq if users
+        end
+        
+        # Get all users who have any role on this object, as a hash by their role
+        # Useful for when you want to iterate through *all* users of this, but need to know their roles too.
+        # Returns: {'some_role' => [user1, AnonUser], 'other_role' => [user2, user3], ...}
+        def users_by_roles
+          self.accepted_roles.all(:include => :users).inject({}){|hash, role| hash[role.name] = role.users.map{|user| user || AnonUser}; hash }
         end
         
         private
@@ -266,6 +274,14 @@ class AnonUser
     
     def id # Convenience method so we don't raise Object#id deprecation
       nil
+    end
+    
+    def name
+      'Anonymous'
+    end
+    
+    def login
+      'anonymous'
     end
     
     private 
