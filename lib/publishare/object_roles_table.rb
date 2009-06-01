@@ -216,6 +216,22 @@ module Authorization
           (user || AnonUser).roles_for self
         end
 
+        # Returns all users with particular role(s)
+        # The method_missing version does something similar, but sugarily.
+        def has_roles roles
+          roles = [roles].flatten # Accept either a single role or multiple
+          roles.map! {|role|  # Accept either Role objects or role names
+            if role.is_a? Role
+              role.name.singularize
+            elsif role.is_a? String
+              role.singularize # just in case we're passed the collective version
+            else
+              raise ArgumentError, "Expecting Role object(s) or a role name String(s)"
+            end }
+          users = self.accepted_roles.find_all_by_name(roles, :include => :users).collect { |role| role.users }
+          users.flatten.compact.uniq if users
+        end
+        
         private
 
         def remove_user_roles
