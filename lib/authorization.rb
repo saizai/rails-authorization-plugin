@@ -102,12 +102,12 @@ module Authorization
             # Store url in session for return if this is available from
             # authentication
             send( STORE_LOCATION_METHOD ) if respond_to? STORE_LOCATION_METHOD
-            if @current_user && @current_user != :false
-              flash[:notice] = @options[:permission_denied_message] || "Permission denied. You cannot access the requested page."
-              redirect_to @options[:permission_denied_redirection] || PERMISSION_DENIED_REDIRECTION
+            if @railsauth_current_user && @railsauth_current_user != :false
+              flash[:notice] = @railsauth_options[:permission_denied_message] || "Permission denied. You cannot access the requested page."
+              redirect_to @railsauth_options[:permission_denied_redirection] || PERMISSION_DENIED_REDIRECTION
             else
-              flash[:notice] = @options[:login_required_message] || "Login is required to access the requested page."
-              redirect_to @options[:login_required_redirection] || LOGIN_REQUIRED_REDIRECTION
+              flash[:notice] = @railsauth_options[:login_required_message] || "Login is required to access the requested page."
+              redirect_to @railsauth_options[:login_required_redirection] || LOGIN_REQUIRED_REDIRECTION
             end
             false  # Want to short-circuit the filters
           end
@@ -116,7 +116,7 @@ module Authorization
           format.json { head :forbidden }
         end
       end
-
+      
       # Try to find current user by checking options hash and instance method in that order.
       def get_user
         if @railsauth_options[:user]
