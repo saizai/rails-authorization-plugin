@@ -403,6 +403,7 @@ Role queries follow the same pattern as the setting of roles:
   user.roles_for Group # all roles on any groups (or Group itself)
   user.roles_for group # all roles on this group
   user.roles_for Group, 'moderator' # moderator roles on any Groups
+  user.roles_for group, ['moderator', 'member'] # member OR moderator roles on this group
 
   a_model.has_roles 'moderator' # all moderator users of this model; may also include AnonUser (see below)
   a_model.has_roles [Role.find_by_name('moderator'), 'admin', 'members'] # accepts arrays, Roles, and plurals too
