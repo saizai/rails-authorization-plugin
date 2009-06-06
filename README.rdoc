@@ -316,6 +316,10 @@ model with an optional ":" -- the first versions of Authorization plugin made
 this mandatory but it's now optional since the mandatory preposition makes
 models unambiguous.
 
+You can also pass an arbitrary non-string to be used instead of an authorization exprssion.
+
+E.g.: permit MyModel.special_holiday_permissions?(Time.now) do ... 
+
 ==== Options
 
   :allow_guests => false.
